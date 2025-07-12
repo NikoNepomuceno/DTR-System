@@ -30,6 +30,12 @@ class AuthController extends Controller
      */
     public function adminLogin(Request $request)
     {
+        Log::info('Admin login attempt', [
+            'email' => $request->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -38,6 +44,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            Log::warning('Admin login failed - invalid credentials', ['email' => $request->email]);
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.'
@@ -45,15 +52,31 @@ class AuthController extends Controller
         }
 
         if ($user->role !== 'admin') {
+            Log::warning('Admin login failed - not admin role', [
+                'email' => $request->email,
+                'role' => $user->role
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Admin privileges required.'
             ], 403);
         }
 
-        // For now, we'll use a simple session approach
+        // Regenerate session ID for security
+        $request->session()->regenerate();
+
+        // Store user information in session
         session(['admin_user_id' => $user->id]);
         session(['admin_user' => $user]);
+
+        // Force session save
+        session()->save();
+
+        Log::info('Admin login successful', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'session_id' => session()->getId()
+        ]);
 
         return response()->json([
             'success' => true,
@@ -67,6 +90,12 @@ class AuthController extends Controller
      */
     public function employeeLogin(Request $request)
     {
+        Log::info('Employee login attempt', [
+            'email' => $request->email,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -75,6 +104,7 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            Log::warning('Employee login failed - invalid credentials', ['email' => $request->email]);
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.'
@@ -82,15 +112,31 @@ class AuthController extends Controller
         }
 
         if ($user->role !== 'employee') {
+            Log::warning('Employee login failed - not employee role', [
+                'email' => $request->email,
+                'role' => $user->role
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Access denied. Employee account required.'
             ], 403);
         }
 
-        // For now, we'll use a simple session approach
+        // Regenerate session ID for security
+        $request->session()->regenerate();
+
+        // Store user information in session
         session(['employee_user_id' => $user->id]);
         session(['employee_user' => $user]);
+
+        // Force session save
+        session()->save();
+
+        Log::info('Employee login successful', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'session_id' => session()->getId()
+        ]);
 
         return response()->json([
             'success' => true,

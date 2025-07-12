@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminAuth
@@ -15,8 +16,22 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Debug session information
+        Log::info('AdminAuth middleware check', [
+            'session_id' => session()->getId(),
+            'admin_user_id' => session('admin_user_id'),
+            'has_session' => session()->has('admin_user_id'),
+            'url' => $request->url(),
+            'method' => $request->method()
+        ]);
+
         // Check if admin is logged in
         if (!session('admin_user_id')) {
+            Log::warning('Admin authentication failed - no session', [
+                'url' => $request->url(),
+                'session_id' => session()->getId()
+            ]);
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
@@ -26,6 +41,11 @@ class AdminAuth
 
             return redirect('/login')->with('error', 'Please log in to access the admin dashboard.');
         }
+
+        Log::info('Admin authentication successful', [
+            'admin_user_id' => session('admin_user_id'),
+            'url' => $request->url()
+        ]);
 
         return $next($request);
     }

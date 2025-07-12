@@ -23,6 +23,35 @@ Route::get('/employee/register', function () {
 });
 Route::post('/employee/register', [AuthController::class, 'employeeRegister']);
 
+// Debug routes for session testing (remove in production)
+Route::get('/debug/session', function () {
+    return response()->json([
+        'session_id' => session()->getId(),
+        'session_data' => session()->all(),
+        'employee_user_id' => session('employee_user_id'),
+        'admin_user_id' => session('admin_user_id'),
+        'csrf_token' => csrf_token(),
+        'app_env' => app()->environment(),
+        'is_secure' => request()->isSecure(),
+    ]);
+});
+
+Route::get('/debug/test-redirect', function () {
+    session(['test_data' => 'test_value_' . time()]);
+    return redirect('/debug/session');
+});
+
+Route::get('/debug/test-employee-session', function () {
+    // Simulate employee login for testing
+    session(['employee_user_id' => 1]);
+    session(['employee_user' => ['id' => 1, 'name' => 'Test Employee']]);
+    return response()->json([
+        'message' => 'Employee session set',
+        'session_data' => session()->all(),
+        'redirect_url' => '/employee/dashboard'
+    ]);
+});
+
 
 
 // Employee dashboard routes - Protected by employee middleware

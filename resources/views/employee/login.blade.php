@@ -136,18 +136,29 @@ document.getElementById('employeeLoginForm').addEventListener('submit', function
         },
         body: JSON.stringify({ email: email, password: password })
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Login response status:', response.status);
+        console.log('Login response headers:', response.headers);
+        return response.json();
+    })
     .then(data => {
+        console.log('Login response data:', data);
         if (data.success) {
+            console.log('Login successful, redirecting to:', data.redirect);
             Swal.fire({
                 icon: 'success',
                 title: 'Login Successful!',
                 text: data.message,
                 confirmButtonColor: '#3B82F6'
             }).then(() => {
-                window.location.href = data.redirect;
+                console.log('About to redirect to:', data.redirect);
+                // Add small delay to ensure session is saved in cloud environment
+                setTimeout(() => {
+                    window.location.href = data.redirect;
+                }, 300);
             });
         } else {
+            console.log('Login failed:', data.message);
             Swal.fire({
                 icon: 'error',
                 title: 'Login Failed',

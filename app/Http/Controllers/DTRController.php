@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DTR;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -148,7 +149,31 @@ class DTRController extends Controller
      */
     public function employeeDashboard()
     {
-        $user = User::find(session('employee_user_id'));
+        $employeeUserId = session('employee_user_id');
+
+        Log::info('Employee dashboard access attempt', [
+            'employee_user_id' => $employeeUserId,
+            'session_id' => session()->getId(),
+            'session_data' => session()->all()
+        ]);
+
+        if (!$employeeUserId) {
+            Log::error('Employee dashboard access failed - no user ID in session');
+            return redirect('/employee/login')->with('error', 'Session expired. Please log in again.');
+        }
+
+        $user = User::find($employeeUserId);
+
+        if (!$user) {
+            Log::error('Employee dashboard access failed - user not found', ['user_id' => $employeeUserId]);
+            session()->forget(['employee_user_id', 'employee_user']);
+            return redirect('/employee/login')->with('error', 'User account not found. Please log in again.');
+        }
+
+        Log::info('Employee dashboard access successful', [
+            'user_id' => $user->id,
+            'user_email' => $user->email
+        ]);
 
         $todayDTR = $user->todayDTR();
         $recentActivity = $user->dtrs()
