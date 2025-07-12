@@ -1,0 +1,35 @@
+<div class="flex justify-between items-center bg-white rounded-xl p-2 mb-8 shadow-sm">
+    <div class="flex space-x-2">
+        <a href="/dtr/scan"
+            class="flex items-center px-4 py-2 rounded-lg {{ request()->is('dtr/scan') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm' : 'text-gray-500 hover:bg-gray-100' }}">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 10l4.553-2.276A2 2 0 0021 6.382V5a2 2 0 00-2-2H5a2 2 0 00-2 2v1.382a2 2 0 001.447 1.342L9 10m6 0v4m0 0l-6 3m6-3l6 3m-6-3V6m0 8l-6 3" />
+            </svg>
+            Scanner
+        </a>
+        <a href="/dtr"
+            class="flex items-center px-4 py-2 rounded-lg {{ request()->is('dtr') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm' : 'text-gray-500 hover:bg-gray-100' }}">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3 12l2-2m0 0l7-7 7 7M13 5v6h6m-6 0v6m0 0H7m6 0h6" />
+            </svg>
+            Dashboard
+        </a>
+        <a href="/dtr/employee"
+            class="flex items-center px-4 py-2 rounded-lg {{ request()->is('dtr/employee') ? 'bg-blue-50 text-blue-700 font-semibold shadow-sm' : 'text-gray-500 hover:bg-gray-100' }}">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75" />
+            </svg>
+            Employees
+        </a>
+        <a href="#" class="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-gray-100">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
+            </svg>
+            QR Codes
+        </a>
+    </div>
+    <!-- Theme toggle is now handled globally in the main layout -->
+</div>

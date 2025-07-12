@@ -1,0 +1,73 @@
+:root {
+  --bg: #f3f4f6;
+  --card-bg: #fff;
+  --text: #1f2937;
+  --text-secondary: #6b7280;
+  --text-accent: #2563eb;
+  --border: #e5e7eb;
+  --accent-blue: #3b82f6;
+  --accent-green: #22d3ee;
+  --accent-purple: #a78bfa;
+  --accent-orange: #fbbf24;
+  --input-bg: #fff;
+  --button-bg: #e5e7eb;
+  --button-text: #1f2937;
+  --card-blue-bg: #e8f0fe;
+  --card-green-bg: #e6fcf5;
+  --card-purple-bg: #f3e8ff;
+  --card-orange-bg: #fff7ed;
+  --card-border: #e5e7eb;
+}
+
+[data-theme="dark"] {
+  --bg: #23272f;
+  --card-bg: #323846;
+  --text: #fff;
+  --text-secondary: #e0e7ef;
+  --text-accent: #60a5fa;
+  --border: #4b5563;
+  --accent-blue: #60a5fa;
+  --accent-green: #34d399;
+  --accent-purple: #a78bfa;
+  --accent-orange: #fbbf24;
+  --input-bg: #23272f;
+  --button-bg: #374151;
+  --button-text: #fff;
+  --card-blue-bg: #60a5fa;
+  --card-green-bg: #6ee7b7;
+  --card-purple-bg: #c4b5fd;
+  --card-orange-bg: #fde68a;
+  --card-border: #4b5563;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+.card, .bg-white {
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+input, select, textarea {
+  background: var(--input-bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+button, .btn {
+  background: var(--button-bg) !important;
+  color: var(--button-text) !important;
+  border-color: var(--border) !important;
+}
+.stat-card {
+  border: 1px solid var(--card-border) !important;
+}
+/* Example accent usage for icons/cards */
+.accent-blue { color: var(--accent-blue) !important; }
+.accent-green { color: var(--accent-green) !important; }
+.accent-purple { color: var(--accent-purple) !important; }
+.accent-orange { color: var(--accent-orange) !important; }
+
+.text-primary { color: var(--text) !important; }
+.text-secondary { color: var(--text-secondary) !important; }
+.text-accent { color: var(--text-accent) !important; }
