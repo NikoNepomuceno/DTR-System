@@ -228,7 +228,7 @@
     </div>
 
     <!-- Summary Statistics -->
-    <div class="summary-section">
+    {{-- <div class="summary-section">
         <h3 style="margin-bottom: 15px; font-size: 16px; color: var(--text-primary);">Summary Statistics</h3>
         <div class="summary-grid">
             <div class="summary-card">
@@ -269,7 +269,7 @@
                 <div class="summary-label">Attendance Rate</div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- DTR Records Table -->
     <div>
@@ -287,7 +287,7 @@
                         <th>Time Out</th>
                         <th>Break Hours</th>
                         <th>Total Hours</th>
-                        <th>Status</th>
+                        <th>Verified by</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -302,9 +302,9 @@
                             <td>{{ number_format($dtr->break_hours, 1) }}</td>
                             <td>{{ number_format($dtr->total_hours, 1) }}</td>
                             <td>
-                                <span class="status-{{ $dtr->status }}">
+                                {{-- <span class="status-{{ $dtr->status }}">
                                     {{ ucfirst($dtr->status) }}
-                                </span>
+                                </span> --}}
                             </td>
                         </tr>
                     @endforeach
