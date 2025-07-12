@@ -31,5 +31,33 @@
             QR Codes
         </a>
     </div>
-    <!-- Theme toggle is now handled globally in the main layout -->
+
+    <!-- Admin User Info and Logout -->
+    <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-3">
+            <div class="bg-red-100 rounded-full p-2">
+                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 11c1.104 0 2-.896 2-2s-.896-2-2-2-2 .896-2 2 .896 2 2 2zm0 0v2m0 4h.01M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z" />
+                </svg>
+            </div>
+            <div class="hidden sm:block">
+                <div class="text-sm font-medium text-gray-900">
+                    {{ session('user_name', 'Admin') }}
+                </div>
+                <div class="text-xs text-gray-500">Administrator</div>
+            </div>
+        </div>
+
+        <a href="/logout"
+            class="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition duration-200"
+            onclick="return confirm('Are you sure you want to logout?')">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 0v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span class="hidden sm:inline">Logout</span>
+        </a>
+    </div>
 </div>
