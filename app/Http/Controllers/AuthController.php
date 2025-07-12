@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -30,21 +32,25 @@ class AuthController extends Controller
      */
     public function adminLogin(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'remember' => 'boolean',
+        ]);
+
         Log::info('Admin login attempt', [
             'email' => $request->email,
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
 
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            Log::warning('Admin login failed - invalid credentials', ['email' => $request->email]);
+            Log::warning('Admin login failed - invalid credentials', [
+                'email' => $request->email,
+                'ip' => $request->ip()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.'
@@ -69,13 +75,28 @@ class AuthController extends Controller
         session(['admin_user_id' => $user->id]);
         session(['admin_user' => $user]);
 
+        // Handle remember me functionality
+        if ($request->remember) {
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            // Set remember me cookie (Laravel handles this automatically)
+            Auth::login($user, true);
+
+            Log::info('Admin remember me token set', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+        }
+
         // Force session save
         session()->save();
 
         Log::info('Admin login successful', [
             'user_id' => $user->id,
             'email' => $user->email,
-            'session_id' => session()->getId()
+            'session_id' => session()->getId(),
+            'remember' => $request->remember ?? false
         ]);
 
         return response()->json([
@@ -90,21 +111,25 @@ class AuthController extends Controller
      */
     public function employeeLogin(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+            'remember' => 'boolean',
+        ]);
+
         Log::info('Employee login attempt', [
             'email' => $request->email,
             'ip' => $request->ip(),
             'user_agent' => $request->userAgent()
         ]);
 
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
-
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            Log::warning('Employee login failed - invalid credentials', ['email' => $request->email]);
+            Log::warning('Employee login failed - invalid credentials', [
+                'email' => $request->email,
+                'ip' => $request->ip()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid credentials.'
@@ -129,13 +154,28 @@ class AuthController extends Controller
         session(['employee_user_id' => $user->id]);
         session(['employee_user' => $user]);
 
+        // Handle remember me functionality
+        if ($request->remember) {
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            // Set remember me cookie (Laravel handles this automatically)
+            Auth::login($user, true);
+
+            Log::info('Employee remember me token set', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+        }
+
         // Force session save
         session()->save();
 
         Log::info('Employee login successful', [
             'user_id' => $user->id,
             'email' => $user->email,
-            'session_id' => session()->getId()
+            'session_id' => session()->getId(),
+            'remember' => $request->remember ?? false
         ]);
 
         return response()->json([
@@ -198,10 +238,21 @@ class AuthController extends Controller
             $user->generateQRCode();
             Log::info('QR code generated', ['qr_code' => $user->qr_code]);
 
-            // Automatically sign in the user
+            // Automatically sign in the user with remember me
             session(['employee_user_id' => $user->id]);
             session(['employee_user' => $user]);
-            Log::info('User session created');
+
+            // Set remember me token for seamless experience
+            $user->setRememberToken(Str::random(60));
+            $user->save();
+
+            // Login with remember me
+            Auth::login($user, true);
+
+            Log::info('User session created with remember me token', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -231,11 +282,54 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle logout.
+     * Handle logout with enhanced security.
      */
     public function logout(Request $request)
     {
-        session()->forget(['admin_user_id', 'admin_user', 'employee_user_id', 'employee_user']);
-        return redirect('/');
+        // Get user info for logging before clearing session
+        $adminUserId = session('admin_user_id');
+        $employeeUserId = session('employee_user_id');
+        $sessionId = session()->getId();
+
+        Log::info('Logout initiated', [
+            'admin_user_id' => $adminUserId,
+            'employee_user_id' => $employeeUserId,
+            'session_id' => $sessionId,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        // Clear remember me token if user is authenticated
+        if (Auth::check()) {
+            $user = Auth::user();
+            $user->setRememberToken(null);
+            $user->save();
+
+            Log::info('Remember me token cleared', [
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
+        }
+
+        // Logout from Laravel's auth system (clears remember me cookies)
+        Auth::logout();
+
+        // Invalidate the entire session (more secure than just forgetting keys)
+        $request->session()->invalidate();
+
+        // Regenerate CSRF token to prevent CSRF attacks
+        $request->session()->regenerateToken();
+
+        Log::info('Logout completed', [
+            'previous_session_id' => $sessionId,
+            'new_session_id' => session()->getId()
+        ]);
+
+        // Determine redirect based on user type
+        if ($adminUserId) {
+            return redirect('/login')->with('success', 'You have been logged out successfully.');
+        } else {
+            return redirect('/employee/login')->with('success', 'You have been logged out successfully.');
+        }
     }
 }

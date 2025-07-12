@@ -42,6 +42,13 @@
                         </button>
                     </div>
                 </div>
+                <div class="mb-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" value="1"
+                            class="mr-2 rounded border-gray-300 text-red-600 focus:ring-red-500">
+                        <span class="text-sm text-gray-600">Remember me for 30 days</span>
+                    </label>
+                </div>
                 <button type="submit"
                     class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 active:bg-red-800 transition-colors duration-150">Login</button>
             </form>
@@ -63,6 +70,7 @@
 
             const email = document.querySelector('input[name="email"]').value.trim();
             const password = document.querySelector('input[name="password"]').value;
+            const remember = document.querySelector('input[name="remember"]').checked;
 
             // Basic validation
             if (!email) {
@@ -113,7 +121,7 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                 },
-                body: JSON.stringify({ email: email, password: password })
+                body: JSON.stringify({ email: email, password: password, remember: remember })
             })
                 .then(response => response.json())
                 .then(data => {
