@@ -11,9 +11,9 @@
     <style>
         .animated-square {
             position: absolute;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.22) 60%, rgba(100, 200, 150, 0.13) 100%);
-            box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.18);
-            border: 1.5px solid rgba(180, 255, 200, 0.18);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 60%, rgba(100, 200, 150, 0.06) 100%);
+            box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.3);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border-radius: 1.5rem;
             will-change: transform;
@@ -27,16 +27,16 @@
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 
 <body
-    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-green-100 overflow-hidden py-8">
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 overflow-hidden py-8">
     <!-- Animated Background -->
     <div id="animated-squares" style="position: fixed; inset: 0; pointer-events: none; z-index: 1;"></div>
     <style id="squares-anim-style"></style>
