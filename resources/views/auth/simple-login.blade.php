@@ -7,6 +7,7 @@
     <title>Admin Login - DTR System</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         .animated-square {
             position: absolute;
@@ -55,25 +56,7 @@
                 <p class="text-gray-600">DTR System Administration</p>
             </div>
 
-            @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    @foreach ($errors->all() as $error)
-                        <p>{{ $error }}</p>
-                    @endforeach
-                </div>
-            @endif
-
-            @if (session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if (session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
+            <!-- Messages will be handled by SweetAlert 2 -->
 
             <form method="POST" action="/admin/login">
                 @csrf
@@ -159,6 +142,53 @@
                 container.appendChild(createSquare(i));
             }
         }
+    </script>
+
+    <!-- SweetAlert 2 Notifications -->
+    <script>
+        // Show success message
+        @if (session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+                customClass: {
+                    popup: 'rounded-2xl'
+                }
+            });
+        @endif
+
+        // Show error message
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#dc2626',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-lg px-6 py-2 font-semibold'
+                }
+            });
+        @endif
+
+        // Show validation errors
+        @if ($errors->any())
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                html: '@foreach ($errors->all() as $error)<p>{{ $error }}</p>@endforeach',
+                confirmButtonColor: '#dc2626',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-lg px-6 py-2 font-semibold'
+                }
+            });
+        @endif
     </script>
 </body>
 

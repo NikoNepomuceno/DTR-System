@@ -133,7 +133,7 @@ class SimpleAuthController extends Controller
 
             Log::info('Employee registered and logged in', ['user_id' => $user->id]);
 
-            return redirect('/employee/dashboard')->with('success', 'Account created successfully!');
+            return redirect('/employee/dashboard')->with('success', 'Welcome to DTR System! Your account has been created successfully and you are now logged in.');
 
         } catch (\Exception $e) {
             Log::error('Employee registration failed', ['error' => $e->getMessage()]);
@@ -156,9 +156,9 @@ class SimpleAuthController extends Controller
 
         // Redirect based on role
         if ($userRole === 'admin') {
-            return redirect('/admin/login')->with('success', 'Logged out successfully.');
+            return redirect('/admin/login')->with('success', 'You have been logged out successfully. Have a great day!');
         } else {
-            return redirect('/employee/login')->with('success', 'Logged out successfully.');
+            return redirect('/employee/login')->with('success', 'You have been logged out successfully. See you next time!');
         }
     }
 

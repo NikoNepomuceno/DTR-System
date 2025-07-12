@@ -50,9 +50,8 @@
             </div>
         </div>
 
-        <a href="/logout"
-            class="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition duration-200"
-            onclick="return confirm('Are you sure you want to logout?')">
+        <a href="#" id="logout-btn"
+            class="flex items-center px-4 py-2 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition duration-200">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="M17 16l4-4m0 0l-4-4m4 4H7m6 0v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -61,3 +60,47 @@
         </a>
     </div>
 </div>
+
+<!-- SweetAlert 2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    document.getElementById('logout-btn').addEventListener('click', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Logout Confirmation',
+            text: 'Are you sure you want to logout?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#dc2626',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, logout',
+            cancelButtonText: 'Cancel',
+            reverseButtons: true,
+            customClass: {
+                popup: 'rounded-2xl',
+                confirmButton: 'rounded-lg px-6 py-2 font-semibold',
+                cancelButton: 'rounded-lg px-6 py-2 font-semibold'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show loading toast
+                Swal.fire({
+                    title: 'Logging out...',
+                    text: 'Please wait',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    timer: 1000,
+                    customClass: {
+                        popup: 'rounded-2xl'
+                    }
+                }).then(() => {
+                    window.location.href = '/logout';
+                });
+            }
+        });
+    });
+</script>
