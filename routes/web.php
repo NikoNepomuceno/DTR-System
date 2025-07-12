@@ -52,6 +52,60 @@ Route::get('/debug/test-employee-session', function () {
     ]);
 });
 
+Route::get('/debug/cloud-status', function () {
+    return response()->json([
+        'environment' => app()->environment(),
+        'session_driver' => config('session.driver'),
+        'session_lifetime' => config('session.lifetime'),
+        'is_secure' => request()->isSecure(),
+        'app_url' => config('app.url'),
+        'session_domain' => config('session.domain'),
+        'session_path' => config('session.path'),
+        'session_secure' => config('session.secure'),
+        'session_same_site' => config('session.same_site'),
+        'csrf_token' => csrf_token(),
+        'server_info' => [
+            'php_version' => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+        ],
+        'database_connection' => [
+            'driver' => config('database.default'),
+            'connection_test' => 'Testing...'
+        ]
+    ]);
+});
+
+Route::post('/debug/test-login', function (Request $request) {
+    // Emergency test login route
+    $email = $request->input('email', 'admin@test.com');
+    $userType = $request->input('type', 'admin');
+
+    // Force session regeneration
+    $request->session()->regenerate();
+
+    if ($userType === 'admin') {
+        session(['admin_user_id' => 999]);
+        session(['admin_user' => ['id' => 999, 'name' => 'Test Admin', 'email' => $email]]);
+        $redirect = '/dtr';
+    } else {
+        session(['employee_user_id' => 999]);
+        session(['employee_user' => ['id' => 999, 'name' => 'Test Employee', 'email' => $email]]);
+        $redirect = '/employee/dashboard';
+    }
+
+    // Force session save
+    session()->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Test login successful!',
+        'redirect' => $redirect,
+        'session_id' => session()->getId(),
+        'session_data' => session()->all()
+    ]);
+});
+
 
 
 // Employee dashboard routes - Protected by employee middleware

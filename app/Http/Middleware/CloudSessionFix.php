@@ -30,26 +30,44 @@ class CloudSessionFix
                 'session.secure' => true,
                 'session.same_site' => 'lax',
                 'session.http_only' => true,
+                'session.domain' => null, // Let Laravel handle domain automatically
             ]);
         }
 
-        // Debug session information in non-production environments
-        if (config('app.debug')) {
-            Log::info('CloudSessionFix middleware', [
-                'session_id' => session()->getId(),
-                'session_started' => session()->isStarted(),
-                'is_secure' => $request->isSecure(),
-                'url' => $request->url(),
-                'user_agent' => $request->userAgent(),
-                'ip' => $request->ip(),
+        // Force session configuration for cloud environments
+        if (app()->environment('production')) {
+            config([
+                'session.lifetime' => 120,
+                'session.expire_on_close' => false,
+                'session.encrypt' => false,
+                'session.path' => '/',
             ]);
         }
+
+        // Debug session information
+        Log::info('CloudSessionFix middleware', [
+            'session_id' => session()->getId(),
+            'session_started' => session()->isStarted(),
+            'is_secure' => $request->isSecure(),
+            'url' => $request->url(),
+            'method' => $request->method(),
+            'user_agent' => $request->userAgent(),
+            'ip' => $request->ip(),
+            'environment' => app()->environment(),
+            'session_driver' => config('session.driver'),
+        ]);
 
         $response = $next($request);
 
-        // Ensure session is saved after request processing
+        // Force session save for cloud environments
         if (session()->isStarted()) {
             session()->save();
+
+            Log::info('Session saved after request', [
+                'session_id' => session()->getId(),
+                'url' => $request->url(),
+                'method' => $request->method(),
+            ]);
         }
 
         return $response;

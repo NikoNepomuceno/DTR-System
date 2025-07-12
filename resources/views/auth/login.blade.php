@@ -115,6 +115,7 @@
             });
 
             // Send login request
+            console.log('Sending login request...', { email: email, remember: remember });
             fetch('/login', {
                 method: 'POST',
                 headers: {
@@ -132,10 +133,11 @@
                             text: data.message,
                             confirmButtonColor: '#DC2626'
                         }).then(() => {
-                            // Add small delay to ensure session is saved in cloud environment
+                            // Add longer delay for cloud environments to ensure session is saved
                             setTimeout(() => {
+                                console.log('Redirecting to:', data.redirect);
                                 window.location.href = data.redirect;
-                            }, 300);
+                            }, 1000);
                         });
                     } else {
                         Swal.fire({
@@ -147,11 +149,11 @@
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Login Error:', error);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred during login.',
+                        title: 'Connection Error',
+                        text: 'Unable to connect to server. Please check your internet connection and try again.',
                         confirmButtonColor: '#DC2626'
                     });
                 });
