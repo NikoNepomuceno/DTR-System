@@ -127,11 +127,14 @@ class SimpleAuthController extends Controller
             // Generate QR code
             $user->generateQRCode();
 
-            // Auto login
+            // Auto login - using the correct session variables for EmployeeAuth middleware
             session()->regenerate();
-            session(['user_id' => $user->id, 'user_role' => 'employee', 'user_name' => $user->name]);
+            session(['employee_user_id' => $user->id, 'employee_user' => $user, 'user_role' => 'employee', 'user_name' => $user->name]);
 
-            Log::info('Employee registered and logged in', ['user_id' => $user->id]);
+            // Force session save for cloud environments
+            session()->save();
+
+            Log::info('Employee registered and logged in', ['user_id' => $user->id, 'session_id' => session()->getId()]);
 
             return redirect('/employee/dashboard')->with('success', 'Welcome to DTR System! Your account has been created successfully and you are now logged in.');
 

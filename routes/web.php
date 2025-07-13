@@ -151,18 +151,6 @@ Route::get('/debug/create-test-admin', function () {
 
 
 
-// Employee dashboard routes - Protected by employee middleware
-Route::middleware(['employee.auth'])->group(function () {
-    Route::get('/employee/dashboard', [DTRController::class, 'employeeDashboard']);
-    Route::get('/employee/history', [DTRController::class, 'employeeHistory']);
-    Route::get('/employee/qr-code', [DTRController::class, 'employeeQRCode']);
-});
+// Employee dashboard routes are now handled in simple-auth.php
 
-// DTR System routes (admin) - Protected by admin middleware
-Route::middleware(['admin.auth'])->group(function () {
-    Route::get('/dtr', [DTRController::class, 'index']);
-    Route::get('/dtr/scan', [DTRController::class, 'scan']);
-    Route::post('/dtr/scan', [DTRController::class, 'processScan']);
-    Route::get('/dtr/export-pdf', [DTRController::class, 'exportPDF'])->name('dtr.export-pdf');
-    Route::get('/dtr/employee', [DTRController::class, 'employees']);
-});
+// DTR System routes (admin) are now handled in simple-auth.php
