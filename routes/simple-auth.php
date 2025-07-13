@@ -64,8 +64,32 @@ Route::get('/debug/simple-session', function () {
         'user_id' => session('user_id'),
         'user_role' => session('user_role'),
         'user_name' => session('user_name'),
+        'employee_user_id' => session('employee_user_id'),
         'session_id' => session()->getId(),
+        'session_started' => session()->isStarted(),
         'all_session' => session()->all(),
+    ]);
+});
+
+// Test employee session after login
+Route::get('/debug/test-employee-auth', function () {
+    $hasUserId = session('user_id') ? 'YES' : 'NO';
+    $hasUserRole = session('user_role') ? 'YES' : 'NO';
+    $userRole = session('user_role');
+    $roleMatch = (session('user_role') === 'employee') ? 'YES' : 'NO';
+
+    return response()->json([
+        'middleware_check_user_id' => $hasUserId,
+        'middleware_check_user_role' => $hasUserRole,
+        'user_role_value' => $userRole,
+        'role_matches_employee' => $roleMatch,
+        'session_data' => [
+            'user_id' => session('user_id'),
+            'user_role' => session('user_role'),
+            'user_name' => session('user_name'),
+            'employee_user_id' => session('employee_user_id'),
+        ],
+        'middleware_would_pass' => ($hasUserId === 'YES' && $roleMatch === 'YES') ? 'YES' : 'NO'
     ]);
 });
 
