@@ -9,19 +9,19 @@ Route::get('/', function () {
     return view('employee.login');
 });
 
-// Authentication routes
-Route::get('/login', [AuthController::class, 'showAdminLogin']);
-Route::post('/login', [AuthController::class, 'adminLogin']);
-Route::get('/employee/login', [AuthController::class, 'showEmployeeLogin']);
-Route::post('/employee/login', [AuthController::class, 'employeeLogin']);
-Route::get('/logout', [AuthController::class, 'logout']);
-Route::get('/employee/logout', [AuthController::class, 'logout']);
+// Authentication routes - DISABLED (handled in simple-auth.php)
+// Route::get('/login', [AuthController::class, 'showAdminLogin']);
+// Route::post('/login', [AuthController::class, 'adminLogin']);
+// Route::get('/employee/login', [AuthController::class, 'showEmployeeLogin']);
+// Route::post('/employee/login', [AuthController::class, 'employeeLogin']);
+// Route::get('/logout', [AuthController::class, 'logout']);
+// Route::get('/employee/logout', [AuthController::class, 'logout']);
 
-// Employee registration routes
-Route::get('/employee/register', function () {
-    return view('employee.register');
-});
-Route::post('/employee/register', [AuthController::class, 'employeeRegister']);
+// Employee registration routes - DISABLED (handled in simple-auth.php)
+// Route::get('/employee/register', function () {
+//     return view('employee.register');
+// });
+// Route::post('/employee/register', [AuthController::class, 'employeeRegister']);
 
 // Debug routes for session testing (remove in production)
 Route::get('/debug/session', function () {

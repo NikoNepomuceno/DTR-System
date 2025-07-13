@@ -85,11 +85,24 @@ class SimpleAuthController extends Controller
             ])->withInput();
         }
 
-        // Simple session setup
+        // Simple session setup - set both session variables for compatibility
         session()->regenerate();
-        session(['user_id' => $user->id, 'user_role' => 'employee', 'user_name' => $user->name]);
+        session([
+            'user_id' => $user->id,
+            'user_role' => 'employee',
+            'user_name' => $user->name,
+            'employee_user_id' => $user->id,  // For DTRController compatibility
+            'employee_user' => $user           // For EmployeeAuth middleware compatibility
+        ]);
 
-        Log::info('Employee login successful', ['user_id' => $user->id]);
+        // Force session save for cloud environments
+        session()->save();
+
+        Log::info('Employee login successful', [
+            'user_id' => $user->id,
+            'session_id' => session()->getId(),
+            'session_variables_set' => ['user_id', 'user_role', 'user_name', 'employee_user_id', 'employee_user']
+        ]);
 
         // Direct redirect to employee dashboard
         return redirect('/employee/dashboard');
@@ -127,14 +140,24 @@ class SimpleAuthController extends Controller
             // Generate QR code
             $user->generateQRCode();
 
-            // Auto login - using the correct session variables for EmployeeAuth middleware
+            // Auto login - set both session variables for compatibility
             session()->regenerate();
-            session(['employee_user_id' => $user->id, 'employee_user' => $user, 'user_role' => 'employee', 'user_name' => $user->name]);
+            session([
+                'user_id' => $user->id,           // For SimpleAuth middleware
+                'user_role' => 'employee',
+                'user_name' => $user->name,
+                'employee_user_id' => $user->id,  // For DTRController compatibility
+                'employee_user' => $user           // For EmployeeAuth middleware compatibility
+            ]);
 
             // Force session save for cloud environments
             session()->save();
 
-            Log::info('Employee registered and logged in', ['user_id' => $user->id, 'session_id' => session()->getId()]);
+            Log::info('Employee registered and logged in', [
+                'user_id' => $user->id,
+                'session_id' => session()->getId(),
+                'session_variables_set' => ['user_id', 'user_role', 'user_name', 'employee_user_id', 'employee_user']
+            ]);
 
             return redirect('/employee/dashboard')->with('success', 'Welcome to DTR System! Your account has been created successfully and you are now logged in.');
 

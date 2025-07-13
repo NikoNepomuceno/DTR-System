@@ -16,12 +16,35 @@
             <h3 class="font-semibold text-blue-800 mb-3">How to Use:</h3>
             <ul class="text-sm text-blue-700 space-y-1">
                 <li>• Scan employee QR codes using the camera</li>
+                <li>• Use "Switch Camera" button to rotate between front/back cameras on mobile</li>
                 <li>• Or manually enter employee ID in the input field</li>
                 <li>• System will automatically clock in/out employees</li>
             </ul>
         </div>
 
         <div id="qr-reader" style="width: 100%;"></div>
+
+        <!-- Camera Controls -->
+        <div id="camera-controls" class="mt-4 flex justify-center space-x-4" style="display: none;">
+            <button id="switch-camera-btn"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>Switch Camera</span>
+            </button>
+            <button id="stop-camera-btn"
+                class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                </svg>
+                <span>Stop Camera</span>
+            </button>
+        </div>
+
         <div id="qr-reader-results" class="mt-4 text-center text-lg text-green-600"></div>
 
         <!-- Manual Input Section -->
@@ -94,6 +117,10 @@
     </style>
     <script>
         let lastResult = null;
+        let html5QrCode = null;
+        let availableCameras = [];
+        let currentCameraIndex = 0;
+        let isScanning = false;
 
         function onScanSuccess(decodedText, decodedResult) {
             if (decodedText !== lastResult) {
@@ -163,15 +190,15 @@
 
                         // Update results display
                         document.getElementById('qr-reader-results').innerHTML = `
-                                <div class="text-center">
-                                    <div class="text-lg font-semibold text-green-600">${data.user.name}</div>
-                                    <div class="text-sm text-gray-600">${data.user.employee_id} • ${data.user.department}</div>
-                                    <div class="text-sm text-blue-600 mt-1">${data.status}</div>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        Time In: ${data.time_in} | Time Out: ${data.time_out}
-                                    </div>
-                                </div>
-                            `;
+                                                <div class="text-center">
+                                                    <div class="text-lg font-semibold text-green-600">${data.user.name}</div>
+                                                    <div class="text-sm text-gray-600">${data.user.employee_id} • ${data.user.department}</div>
+                                                    <div class="text-sm text-blue-600 mt-1">${data.status}</div>
+                                                    <div class="text-xs text-gray-500 mt-1">
+                                                        Time In: ${data.time_in} | Time Out: ${data.time_out}
+                                                    </div>
+                                                </div>
+                                            `;
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -199,9 +226,152 @@
             }
         });
 
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "qr-reader", { fps: 10, qrbox: 250 }
-        );
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        // Initialize camera functionality
+        async function initializeCamera() {
+            try {
+                // Get available cameras
+                availableCameras = await Html5Qrcode.getCameras();
+
+                if (availableCameras && availableCameras.length > 0) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+
+                    // Show camera controls if multiple cameras are available
+                    if (availableCameras.length > 1) {
+                        document.getElementById('camera-controls').style.display = 'flex';
+                    }
+
+                    // Start with back camera if available, otherwise use first camera
+                    currentCameraIndex = findBackCameraIndex();
+                    await startCamera();
+                } else {
+                    // Fallback to Html5QrcodeScanner if no cameras detected
+                    let html5QrcodeScanner = new Html5QrcodeScanner(
+                        "qr-reader", { fps: 10, qrbox: 250 }
+                    );
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                }
+            } catch (err) {
+                console.error('Error initializing camera:', err);
+                // Fallback to Html5QrcodeScanner
+                let html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", { fps: 10, qrbox: 250 }
+                );
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            }
+        }
+
+        function findBackCameraIndex() {
+            // Try to find back camera (environment facing)
+            for (let i = 0; i < availableCameras.length; i++) {
+                const camera = availableCameras[i];
+                if (camera.label && camera.label.toLowerCase().includes('back')) {
+                    return i;
+                }
+                if (camera.label && camera.label.toLowerCase().includes('environment')) {
+                    return i;
+                }
+                if (camera.label && camera.label.toLowerCase().includes('rear')) {
+                    return i;
+                }
+            }
+            return 0; // Default to first camera
+        }
+
+        async function startCamera() {
+            if (!html5QrCode || !availableCameras[currentCameraIndex]) return;
+
+            try {
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                const cameraId = availableCameras[currentCameraIndex].id;
+
+                await html5QrCode.start(cameraId, config, onScanSuccess, onScanFailure);
+                isScanning = true;
+
+                // Show camera controls
+                document.getElementById('camera-controls').style.display = 'flex';
+
+            } catch (err) {
+                console.error('Error starting camera:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Camera Error',
+                    text: 'Failed to start camera. Please check permissions.',
+                    confirmButtonColor: '#3B82F6'
+                });
+            }
+        }
+
+        async function switchCamera() {
+            if (!html5QrCode || availableCameras.length <= 1) return;
+
+            try {
+                // Stop current camera
+                if (isScanning) {
+                    await html5QrCode.stop();
+                    isScanning = false;
+                }
+
+                // Switch to next camera
+                currentCameraIndex = (currentCameraIndex + 1) % availableCameras.length;
+
+                // Start new camera
+                await startCamera();
+
+                // Show feedback
+                const currentCamera = availableCameras[currentCameraIndex];
+                const cameraName = currentCamera.label || `Camera ${currentCameraIndex + 1}`;
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: `Switched to: ${cameraName}`,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+            } catch (err) {
+                console.error('Error switching camera:', err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Switch Failed',
+                    text: 'Failed to switch camera. Please try again.',
+                    confirmButtonColor: '#3B82F6'
+                });
+            }
+        }
+
+        async function stopCamera() {
+            if (!html5QrCode || !isScanning) return;
+
+            try {
+                await html5QrCode.stop();
+                isScanning = false;
+
+                // Hide camera controls
+                document.getElementById('camera-controls').style.display = 'none';
+
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'info',
+                    title: 'Camera stopped',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    timerProgressBar: true
+                });
+
+            } catch (err) {
+                console.error('Error stopping camera:', err);
+            }
+        }
+
+        // Event listeners for camera controls
+        document.getElementById('switch-camera-btn').addEventListener('click', switchCamera);
+        document.getElementById('stop-camera-btn').addEventListener('click', stopCamera);
+
+        // Initialize camera on page load
+        initializeCamera();
     </script>
 @endsection
