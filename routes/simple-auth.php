@@ -20,17 +20,17 @@ Route::get('/', function () {
 
 // Admin Authentication
 Route::get('/admin/login', [SimpleAuthController::class, 'showAdminLogin']);
-Route::post('/admin/login', [SimpleAuthController::class, 'adminLogin']);
+Route::post('/admin/login', [SimpleAuthController::class, 'adminLogin'])->middleware('login.rate.limit:5,15');
 
-// Employee Authentication  
+// Employee Authentication
 Route::get('/employee/login', [SimpleAuthController::class, 'showEmployeeLogin']);
-Route::post('/employee/login', [SimpleAuthController::class, 'employeeLogin']);
+Route::post('/employee/login', [SimpleAuthController::class, 'employeeLogin'])->middleware('login.rate.limit:5,15');
 
 // Employee Registration
 Route::get('/employee/register', function () {
     return view('employee.register');
 });
-Route::post('/employee/register', [SimpleAuthController::class, 'employeeRegister']);
+Route::post('/employee/register', [SimpleAuthController::class, 'employeeRegister'])->middleware('login.rate.limit:3,30');
 
 // Logout (works for both admin and employee)
 Route::get('/logout', [SimpleAuthController::class, 'logout']);
@@ -38,11 +38,11 @@ Route::get('/admin/logout', [SimpleAuthController::class, 'logout']);
 Route::get('/employee/logout', [SimpleAuthController::class, 'logout']);
 
 // Protected Admin Routes
-Route::middleware(['simple.auth:admin'])->group(function () {
+Route::middleware(['simple.auth:admin', 'secure.session'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('dtr.index');
     });
-    
+
     // All existing DTR admin routes
     Route::get('/dtr', [DTRController::class, 'index']);
     Route::get('/dtr/scan', [DTRController::class, 'scan']);
@@ -52,7 +52,7 @@ Route::middleware(['simple.auth:admin'])->group(function () {
 });
 
 // Protected Employee Routes
-Route::middleware(['simple.auth:employee'])->group(function () {
+Route::middleware(['simple.auth:employee', 'secure.session'])->group(function () {
     Route::get('/employee/dashboard', [DTRController::class, 'employeeDashboard']);
     Route::get('/employee/history', [DTRController::class, 'employeeHistory']);
     Route::get('/employee/qr-code', [DTRController::class, 'employeeQRCode']);

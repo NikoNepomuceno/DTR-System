@@ -38,6 +38,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Session Security Settings
+    |--------------------------------------------------------------------------
+    |
+    | Additional security settings for session management.
+    |
+    */
+
+    'regenerate_interval' => (int) env('SESSION_REGENERATE_INTERVAL', 1800), // 30 minutes
+    'strict_ip_check' => env('SESSION_STRICT_IP_CHECK', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Session Encryption
     |--------------------------------------------------------------------------
     |

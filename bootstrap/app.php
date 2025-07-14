@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'simple.auth' => \App\Http\Middleware\SimpleAuth::class,
             'admin.auth' => \App\Http\Middleware\AdminAuth::class,
             'employee.auth' => \App\Http\Middleware\EmployeeAuth::class,
+            'login.rate.limit' => \App\Http\Middleware\LoginRateLimit::class,
+            'secure.session' => \App\Http\Middleware\SecureSession::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
